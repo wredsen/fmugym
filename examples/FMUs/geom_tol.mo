@@ -11,7 +11,7 @@ model geom_tol
     Placement(transformation(origin = {-140, 69}, extent = {{-20, -20}, {20, 20}}), iconTransformation(origin = {-24, -169}, extent = {{-20, -20}, {20, 20}})));
   Modelica.Blocks.Interfaces.RealInput S4(start=0.2) annotation(
     Placement(transformation(origin = {-140, 22}, extent = {{-20, -20}, {20, 20}}), iconTransformation(origin = {68, -270}, extent = {{-20, -20}, {20, 20}})));
-  Modelica.Blocks.Interfaces.RealInput C5(start=0.1) annotation(
+  Modelica.Blocks.Interfaces.RealInput C5(start=0.2) annotation(
     Placement(transformation(origin = {-138, -25}, extent = {{-20, -20}, {20, 20}}), iconTransformation(origin = {168, -333}, extent = {{-20, -20}, {20, 20}})));
   Modelica.Blocks.Interfaces.RealInput R4(start=0.1) annotation(
     Placement(transformation(origin = {-137, -68}, extent = {{-20, -20}, {20, 20}}), iconTransformation(origin = {239, -410}, extent = {{-20, -20}, {20, 20}})));
@@ -23,53 +23,102 @@ model geom_tol
     Placement(transformation(origin = {84, -65}, extent = {{-10, -10}, {10, 10}}), iconTransformation(origin = {20, -81}, extent = {{-10, -10}, {10, 10}})));
 
 protected 
+  // Nominal values
   parameter Real FR1_nom = 0.5;
   parameter Real FR2_nom = 0.15;
-  parameter Real a = 4;
-  parameter Real l = 30.5;
-  parameter Real FR1_kipp_x = 13.96;
-  parameter Real FR1_kipp_y = 7.25;
-  parameter Real FR2_kipp_x = 31.2;
-  parameter Real FR2_kipp_y = 5;
-  parameter Real FR2_wackel_x = 17;
-  parameter Real FR2_wackel_y = 5;
 
-  Real t_trans, A, B, C, X1, X2, alpha1, beta, alpha;
-  Real FR1_C4_min, FR1_C4_max, FR1_S4_ty_min, FR1_S4_ty_max, FR1_S4_r_min, FR1_S4_r_max;
-  Real FR2_C4_min, FR2_C4_max, FR2_S4_ty_min, FR2_S4_ty_max, FR2_S4_r_min, FR2_S4_r_max;
-  Real FR2_R4_r;
+  // Constants from geometry
+  parameter Real Char_L_S4 = 27.5;
+  parameter Real Char_L_R4 = 17.2679;
+  parameter Real l_R = 30.5;
+  parameter Real r_B = 1;
+  parameter Real a_C = 10;
+
+  // Positions
+  parameter Real Pos_FR1_R_x = 13.96;
+  parameter Real Pos_FR1_R_y = 7.25;
+
+  parameter Real Pos_FR2_RN_x = 31.25;
+  parameter Real Pos_FR2_RN_y = 1.25;
+
+  parameter Real Pos_FR2_N_x = 13.21;
+  parameter Real Pos_FR2_N_y = 1.25;
+
+  parameter Real Pos_P_R_x = 31.5;
+  parameter Real Pos_P_R_y = 0;
+
+  parameter Real Pos_FR2ref_C_x = -0.25;
+  parameter Real Pos_FR2ref_C_y = 1.25;
+
+  // Intermediate angles
+  Real alpha_C4;
+  Real beta_S4;
+  Real alpha_S4;
+  Real gamma_R4;
+
+  // Intermediate FR results
+  Real FR1_C4;
+  Real FR1_S4;
+  Real FR2_C4;
+  Real FR2_S4;
+  Real FR2_R4;
+
+  // M and B positions (for FR2_S4)
+  Real XM, YM, XB, YB;
   
 equation
-  // Kinematics shared across FR1 and FR2
-  t_trans = -C4;
-  A = a / t_trans;
-  B = a / l - 1;
-  C = A^2 - B^2;
-  X1 = A / C + sqrt((A^2) / (C^2) - (1 - B^2) / C);
-  X2 = A / C - sqrt((A^2) / (C^2) - (1 - B^2) / C);
-  alpha1 = atan(X1);
-  FR1_C4_min = FR1_kipp_y * (1 - cos(alpha1)) + FR1_kipp_x * sin(alpha1);
-  FR1_C4_max = -FR1_C4_min;
-  FR1_S4_ty_min = FR1_C4_min;
-  FR1_S4_ty_max = -FR1_S4_ty_min;
-  beta = atan(S4 / 113);
-  alpha = acos((a * cos(beta) + l - a) / l);
-  FR1_S4_r_max = FR1_kipp_y * (1 - cos(alpha)) + FR1_kipp_x * sin(alpha);
-  FR1_S4_r_min = -FR1_S4_r_max;
+  // === Angles ===
+  alpha_C4 = asin((C4 / 2) / (l_R + r_B));
+  beta_S4 = atan(S4 / Char_L_S4);
+  alpha_S4 = acos((a_C * cos(beta_S4) + l_R + r_B - a_C) / (l_R + r_B));
+  gamma_R4 = atan(R4 / Char_L_R4);
 
-  FR1_min = FR1_nom + (-R1 / 2 - S2 / 2 + FR1_C4_min + FR1_S4_ty_min + FR1_S4_r_min);
-  FR1_max = FR1_nom + ( R1 / 2 + S2 / 2 + FR1_C4_max + FR1_S4_ty_max + FR1_S4_r_max);
+  // === FR1 Contributions ===
+  FR1_C4 = Pos_FR1_R_y * (1 - cos(alpha_C4)) + Pos_FR1_R_x * sin(alpha_C4);
+  FR1_S4 = Pos_FR1_R_y * (1 - cos(alpha_S4)) + Pos_FR1_R_x * sin(alpha_S4);
 
-  FR2_C4_min = FR2_kipp_y * (1 - cos(alpha1)) + FR2_kipp_x * sin(alpha1);
-  FR2_C4_max = -FR2_C4_min;
-  FR2_S4_ty_min = FR2_C4_min;
-  FR2_S4_ty_max = -FR2_S4_ty_min;
-  FR2_S4_r_max = FR2_kipp_y * (1 - cos(alpha)) + FR2_kipp_x * sin(alpha);
-  FR2_S4_r_min = -FR2_S4_r_max;
-  FR2_R4_r = FR2_wackel_y * (1 - cos(atan(R4 / 113))) + FR2_wackel_x * sin(atan(R4 / 113));
+  FR1_min = FR1_nom 
+            - R1/4 
+            - S2/4 
+            - FR1_C4 
+            - FR1_S4;
 
-  FR2_min = FR2_nom + (-C5 / 2 - R4 / 2 + FR2_R4_r + FR2_C4_min + FR2_S4_ty_min + FR2_S4_r_min);
-  FR2_max = FR2_nom + ( C5 / 2 + R4 / 2 + FR2_R4_r + FR2_C4_max + FR2_S4_ty_max + FR2_S4_r_max);
+  FR1_max = FR1_nom 
+            + R1/4 
+            + S2/4 
+            + FR1_C4 
+            + FR1_S4;
+
+  // === FR2 Contributions ===
+  FR2_C4 = Pos_FR2_RN_y * (1 - cos(alpha_C4)) + Pos_FR2_RN_x * sin(alpha_C4);
+
+  // Coordinates of M (rotated FR2-RN by alpha_S4)
+  XM = Pos_FR2_RN_x * cos(alpha_S4) - Pos_FR2_RN_y * sin(alpha_S4);
+  YM = Pos_FR2_RN_x * sin(alpha_S4) + Pos_FR2_RN_y * cos(alpha_S4);
+
+  // Coordinates of B (rotated chain RN + C)
+  XB = Pos_P_R_x * cos(alpha_S4) - Pos_P_R_y * sin(alpha_S4)
+     + Pos_FR2ref_C_x * cos(beta_S4) - Pos_FR2ref_C_y * sin(beta_S4);
+  YB = Pos_P_R_x * sin(alpha_S4) + Pos_P_R_y * cos(alpha_S4)
+     + Pos_FR2ref_C_x * sin(beta_S4) + Pos_FR2ref_C_y * cos(beta_S4);
+
+  FR2_S4 = sqrt((XB - XM)^2 + (YB - YM)^2);
+
+  FR2_R4 = Pos_FR2_N_y * (1 - cos(gamma_R4)) + Pos_FR2_N_x * sin(gamma_R4);
+
+  FR2_min = FR2_nom 
+            - C5/4 
+            - N2/4 
+            - FR2_C4 
+            - FR2_S4 
+            - FR2_R4;
+
+  FR2_max = FR2_nom 
+            + C5/4 
+            + N2/4 
+            + FR2_C4 
+            + FR2_S4 
+            + FR2_R4;
 
   annotation(
     uses(Modelica(version = "4.0.0")),
