@@ -11,6 +11,15 @@ N2 = 0.1
 C5 = 0.2
 R4 = 0.1
 
+#Steuergröße negativer Input
+S4_negative = False
+
+# --- S4 prüfen und flag für Rechnungen unten setzen ---
+
+if S4 < 0:
+    S4_negative = True
+    S4 = -S4
+
 #Länge rotatorische Tol-Felder
 Char_L_S4 = 27.5    #Zylinderfläche Stator außen
 Char_L_R4 = 17.2679 #Zylinderfläche Rotor Spindelfläche
@@ -100,6 +109,7 @@ beta_S4 = math.atan(S4/Char_L_S4) # der Drehwinkel von C in CETOLS Kinematik ist
 alpha_S4 = math.acos((a_C*math.cos(beta_S4)+l_R+r_B-a_C)/(l_R+r_B))
 # S4 auf FR1
 FR1_S4_max = Pos_FR1_R_y*(1-math.cos(alpha_S4)) + Pos_FR1_R_x*math.sin(alpha_S4)
+if S4_negative: FR1_S4_max = -FR1_S4_max
 FR1_S4_min = - FR1_S4_max
 FR1_min.append(FR1_S4_min)
 FR1_max.append(FR1_S4_max)
@@ -115,6 +125,7 @@ XB = Pos_P_R_x * math.cos(alpha_S4) - Pos_P_R_y * math.sin(alpha_S4) + Pos_FR2re
 YB = Pos_P_R_x * math.sin(alpha_S4) + Pos_P_R_y * math.cos(alpha_S4) + Pos_FR2ref_C_x * math.sin(beta_S4) + Pos_FR2ref_C_y * math.cos(beta_S4)
 # FR2 ist Abstand zwischen beiden Raumpunkten B und M:
 FR2_S4_max = math.sqrt((XB - XM)**2 + (YB - YM)**2)
+if S4_negative: FR2_S4_max = -FR2_S4_max
 FR2_S4_min = - FR2_S4_max
 FR2_min.append(FR2_S4_min)
 FR2_max.append(FR2_S4_max)
