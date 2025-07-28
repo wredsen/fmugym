@@ -62,17 +62,17 @@ class FMUGym(ABC, gym.Env):
         self.dt_sim = config.sim_step_size
         self.dt_action = config.action_step_size
 
-        #self.y_start = config.set_point_nominal_start.variables
+        self.y_start = config.set_point_nominal_start.variables
 
-        # self.y_stop_range = config.set_point_stop.variables
-        # self.y_stop = {}
-        # # initialize y_stop target values with mean of set point range
-        # for ye in self.y_stop_range:
-        #     self.y_stop[ye] = (
-        #         self.y_stop_range[ye].high[0] - self.y_stop_range[ye].low[0]
-        #     ) / 2.0
+        self.y_stop_range = config.set_point_stop.variables
+        self.y_stop = {}
+        # initialize y_stop target values with mean of set point range
+        for ye in self.y_stop_range:
+            self.y_stop[ye] = (
+                self.y_stop_range[ye].high[0] - self.y_stop_range[ye].low[0]
+            ) / 2.0
 
-        # self.rand_starts = config.set_point_map.variables
+        self.rand_starts = config.set_point_map.variables
         self.terminations = config.terminations.variables
 
         self.fmu_description = read_model_description(config.fmu_path)
