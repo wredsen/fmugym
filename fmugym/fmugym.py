@@ -62,18 +62,34 @@ class FMUGym(ABC, gym.Env):
         self.dt_sim = config.sim_step_size
         self.dt_action = config.action_step_size
 
-        self.y_start = config.set_point_nominal_start.variables
+        # optional initial set-point nominal values
+        if hasattr(config, 'set_point_nominal_start') and getattr(config.set_point_nominal_start, 'variables', None) is not None:
+            self.y_start = config.set_point_nominal_start.variables
+        else:
+            self.y_start = {}
 
-        self.y_stop_range = config.set_point_stop.variables
+        # optional stop range and target values
+        if hasattr(config, 'set_point_stop') and getattr(config.set_point_stop, 'variables', None):
+            self.y_stop_range = config.set_point_stop.variables
+        else:
+            self.y_stop_range = {}
         self.y_stop = {}
-        # initialize y_stop target values with mean of set point range
         for ye in self.y_stop_range:
             self.y_stop[ye] = (
                 self.y_stop_range[ye].high[0] - self.y_stop_range[ye].low[0]
             ) / 2.0
 
-        self.rand_starts = config.set_point_map.variables
-        self.terminations = config.terminations.variables
+        # optional randomized starts
+        if hasattr(config, 'set_point_map') and getattr(config.set_point_map, 'variables', None):
+            self.rand_starts = config.set_point_map.variables
+        else:
+            self.rand_starts = {}
+
+        # optional terminations
+        if hasattr(config, 'terminations') and getattr(config.terminations, 'variables', None):
+            self.terminations = config.terminations.variables
+        else:
+            self.terminations = {}
 
         self.fmu_description = read_model_description(config.fmu_path)
 
@@ -399,15 +415,14 @@ class FMUGym(ABC, gym.Env):
         """
         pass
 
-    @abstractmethod
     def setpoint_trajectory(self):
         """
-        Determines the set point values at the current time step within the trajectory, called by self._get_obs().
-
+        Optional set point trajectory; if not implemented, returns empty dict.
+        Might be called by _get_obs() to update target setpoints.
         Returns:
-            setpoint: The set point value for each output at the current time step.
+            dict: Default empty, override in subclass for custom behavior.
         """
-        pass
+        return {}
 
     @abstractmethod
     def _process_reward(self):

@@ -1,7 +1,7 @@
 within Credibility.Examples.SimpleControlledDriveNonlinear;
 
-model SimpleControlledDrive_virtualMeasurement "Drive train for virtual measurements"
-  extends Modelica.Icons.Example;
+model DC_Motor_Monte_Carlo
+extends Modelica.Icons.Example;
   extends Credibility.Examples.SimpleControlledDriveNonlinear.PartialDrive(redeclare SimpleControlledDriveNonlinear.DataVariant001 data, inertiaLoad(a(fixed = true, start = 0)), damper(d = d_exact));
   parameter Units.SI.RotationalDampingConstant d_exact = 100 "Exact value of damping constant used for virtual measurement";
   Modelica.Blocks.Continuous.LimPID speedController(k = 100, Ti = 0.1, yMax = 12, Ni = 0.1, initType = Modelica.Blocks.Types.Init.SteadyState, controllerType = Modelica.Blocks.Types.SimpleController.PI, limiter(u(start = 0)), Td = 0.1) "k, Ti, Ni: defined from control development, to be tested on control robustness ; yMax, yMin: from system spec; Init defined by optimization scenario spec" annotation(
@@ -76,4 +76,6 @@ sweep signal of constant amplitude. It is used as a&nbsp;reference value of
 the feedback controller which commands a&nbsp;motor torque for the drive train.
 </p>
 </html>"));
-end SimpleControlledDrive_virtualMeasurement;
+
+
+end DC_Motor_Monte_Carlo;
