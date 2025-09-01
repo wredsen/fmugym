@@ -10,6 +10,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.10"
 numpy = "*"
+scipy = "*"
 fmpy = "^0.3.20"
 gymnasium = "^0.29.1"
 matplotlib = "^3.8.3"

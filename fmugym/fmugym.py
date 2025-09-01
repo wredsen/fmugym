@@ -177,11 +177,12 @@ class FMUGym(ABC, gym.Env):
             )
         elif self.is_fmi2:
             self.fmu.instantiate()
+            self.fmu.reset()
             self.fmu.setupExperiment(startTime=self.start_time)
-            self.fmu.enterInitializationMode()
             self.fmu.setReal(
                 init_states.keys(), init_states.values()
             )  # set randomized variables
+            self.fmu.enterInitializationMode()
             self.fmu.exitInitializationMode()
         elif self.is_fmi3:
             self.fmu.instantiate()

@@ -1,7 +1,7 @@
 within Credibility.Examples.SimpleControlledDriveNonlinear;
-model DC_Motor_Monte_Carlo
+model DC_Motor_Workshop
 extends Modelica.Icons.Example;
-  extends Credibility.Examples.SimpleControlledDriveNonlinear.PartialDrive(redeclare SimpleControlledDriveNonlinear.DataVariant001 data, inertiaLoad(a(fixed = true, start = 0)), damper(d = d_exact));
+  extends Credibility.Examples.SimpleControlledDriveNonlinear.PartialDrive(redeclare SimpleControlledDriveNonlinear.DataVariant001 data, inertiaLoad(a(fixed = true, start = 0)), damper(d=40),     spring(k = 1));
   parameter Units.SI.RotationalDampingConstant d_exact = 100 "Exact value of damping constant used for virtual measurement";
   Modelica.Blocks.Continuous.LimPID speedController(k = 100, Ti = 0.1, Ni = 0.1, initType = Modelica.Blocks.Types.Init.SteadyState, controllerType = Modelica.Blocks.Types.SimpleController.PI, limiter(u(start = 0)), Td = 0.1, yMax = 12) "k, Ti, Ni: defined from control development, to be tested on control robustness ; yMax, yMin: from system spec; Init defined by optimization scenario spec" annotation (
     Placement(transformation(origin={-44,2},    extent = {{-90, -10}, {-70, 10}})));
@@ -25,7 +25,8 @@ extends Modelica.Icons.Example;
     Placement(transformation(origin={-99,4.5},  extent={{-5,-5.5},{5,5.5}})));
   Modelica.Blocks.Interfaces.RealInput in_torque annotation (
     Placement(transformation(origin={-153,27},    extent = {{-7, -7}, {7, 7}}), iconTransformation(origin = {-146, 62}, extent = {{-20, -20}, {20, 20}})));
-  Modelica.Mechanics.Rotational.Sources.TorqueStep torqueStep(stepTorque = 5, offsetTorque = 7.5, startTime = 0.5)  annotation (
+  Modelica.Mechanics.Rotational.Sources.TorqueStep torqueStep(
+    stepTorque=5.0,                                                           offsetTorque = 5.0, startTime = 0.5)  annotation (
     Placement(transformation(origin = {100, 0}, extent = {{10, -10}, {-10, 10}})));
   Modelica.Blocks.Continuous.FirstOrder firstOrder(
     k=1,
@@ -74,7 +75,7 @@ equation
       StopTime=4,
       Interval=0.001,
       __Dymola_Algorithm="Dassl"),
-    Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-100, -100}, {100, 100}}), graphics={  Rectangle(lineColor = {255, 0, 0}, extent = {{-96, 76}, {-24, 44}}), Text(textColor = {255, 0, 0}, extent = {{-94, 87}, {-27, 79}}, textString = "reference speed generation"), Text(origin = {26, 0}, textColor = {255, 0, 0}, extent = {{-142, 24}, {-88, 18}}, textString = "controller"), Rectangle(origin = {137, 2},lineColor = {255, 0, 0}, extent = {{-302, 16}, {-203, -16}})}),
+  Diagram(coordinateSystem(preserveAspectRatio = true, extent = {{-180, 100}, {120, -80}}), graphics = {Rectangle(lineColor = {255, 0, 0}, extent = {{-96, 76}, {-24, 44}}), Text(textColor = {255, 0, 0}, extent = {{-94, 87}, {-27, 79}}, textString = "reference speed generation"), Text(origin = {26, 0}, textColor = {255, 0, 0}, extent = {{-142, 24}, {-88, 18}}, textString = "controller"), Rectangle(origin = {137, 2}, lineColor = {255, 0, 0}, extent = {{-302, 16}, {-203, -16}})}),
     Documentation(info = "<html>
 <p>
 A&nbsp;controlled simple drive train to generate noisy signals of speed sensors.
@@ -92,5 +93,6 @@ configuration is prescribed by block <code>sine</code> which generates a&nbsp;si
 sweep signal of constant amplitude. It is used as a&nbsp;reference value of
 the feedback controller which commands a&nbsp;motor torque for the drive train.
 </p>
-</html>"));
-end DC_Motor_Monte_Carlo;
+</html>"),
+  Icon(coordinateSystem(extent = {{-200, -200}, {200, 200}}, preserveAspectRatio = true)));
+end DC_Motor_Workshop;
